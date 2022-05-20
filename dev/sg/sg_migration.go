@@ -20,7 +20,6 @@ import (
 	connections "github.com/sourcegraph/sourcegraph/internal/database/connections/live"
 	"github.com/sourcegraph/sourcegraph/internal/database/migration/cliutil"
 	"github.com/sourcegraph/sourcegraph/internal/database/migration/schemas"
-	descriptions "github.com/sourcegraph/sourcegraph/internal/database/migration/schemas"
 	"github.com/sourcegraph/sourcegraph/internal/database/migration/store"
 	"github.com/sourcegraph/sourcegraph/internal/database/postgresdsn"
 	"github.com/sourcegraph/sourcegraph/internal/observation"
@@ -87,11 +86,11 @@ var (
 	// expectedSchemaFactory returns the description of the given schema at the given version via
 	// the local git clone. If the version is not resolvable as a git rev-like, then an error is
 	// returned.
-	expectedSchemaFactory = func(filename, version string) (descriptions.SchemaDescription, error) {
+	expectedSchemaFactory = func(filename, version string) (schemas.SchemaDescription, error) {
 		ctx := context.Background()
 		output := root.Run(run.Cmd(ctx, "git", "show", fmt.Sprintf("%s^:%s", version, filename)))
 
-		var schemaDescription descriptions.SchemaDescription
+		var schemaDescription schemas.SchemaDescription
 		if err := json.NewDecoder(output).Decode(&schemaDescription); err != nil {
 			return schemaDescription, err
 		}

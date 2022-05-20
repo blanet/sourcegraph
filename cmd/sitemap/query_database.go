@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/sourcegraph/sourcegraph/lib/errors"
 	"go.etcd.io/bbolt"
-	bolt "go.etcd.io/bbolt"
+
+	"github.com/sourcegraph/sourcegraph/lib/errors"
 )
 
 type requestKey struct {
@@ -23,7 +23,7 @@ type requestValue struct {
 // responses that we need to make in order to generate the sitemap. This is basically just a
 // glorified HTTP query disk cache.
 type queryDatabase struct {
-	handle *bolt.DB
+	handle *bbolt.DB
 }
 
 // request performs a request to fetch `key`. If it already exists in the cache, the cached value
@@ -38,7 +38,7 @@ func (db *queryDatabase) request(key requestKey, fetch func() ([]byte, error)) (
 
 	// Check if the bucket already has the request response or not.
 	var value []byte
-	err = db.handle.View(func(tx *bolt.Tx) error {
+	err = db.handle.View(func(tx *bbolt.Tx) error {
 		bucket := tx.Bucket([]byte("request-" + key.RequestName))
 		if bucket != nil {
 			value = bucket.Get(keyBytes)
@@ -61,7 +61,7 @@ func (db *queryDatabase) request(key requestKey, fetch func() ([]byte, error)) (
 	if err != nil {
 		return nil, errors.Wrap(err, "fetch")
 	}
-	err = db.handle.Update(func(tx *bolt.Tx) error {
+	err = db.handle.Update(func(tx *bbolt.Tx) error {
 		bucket, err := tx.CreateBucketIfNotExists([]byte("request-" + key.RequestName))
 		if err != nil {
 			return errors.Wrap(err, "CreateBucketIfNotExists")
@@ -78,7 +78,7 @@ func (db *queryDatabase) request(key requestKey, fetch func() ([]byte, error)) (
 // keys returns a list of all bucket names, e.g. distinct GraphQL query types.
 func (db *queryDatabase) keys() ([]string, error) {
 	var keys []string
-	if err := db.handle.View(func(tx *bolt.Tx) error {
+	if err := db.handle.View(func(tx *bbolt.Tx) error {
 		return tx.ForEach(func(name []byte, b *bbolt.Bucket) error {
 			keys = append(keys, string(name))
 			return nil
@@ -91,7 +91,7 @@ func (db *queryDatabase) keys() ([]string, error) {
 
 // delete deletes the bucket with the given key, e.g. a distinct GraphQL query type.
 func (db *queryDatabase) delete(key string) error {
-	return db.handle.Update(func(tx *bolt.Tx) error {
+	return db.handle.Update(func(tx *bbolt.Tx) error {
 		return tx.DeleteBucket([]byte(key))
 	})
 }
@@ -104,7 +104,7 @@ func openQueryDatabase(path string) (*queryDatabase, error) {
 	db := &queryDatabase{}
 
 	var err error
-	db.handle, err = bolt.Open(path, 0666, nil)
+	db.handle, err = bbolt.Open(path, 0o666, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "bolt.Open")
 	}

@@ -13,7 +13,6 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/database"
 	"github.com/sourcegraph/sourcegraph/internal/errcode"
 	"github.com/sourcegraph/sourcegraph/internal/gitserver/gitdomain"
-	"github.com/sourcegraph/sourcegraph/internal/gitserver/protocol"
 	gitprotocol "github.com/sourcegraph/sourcegraph/internal/gitserver/protocol"
 	"github.com/sourcegraph/sourcegraph/internal/goroutine"
 	"github.com/sourcegraph/sourcegraph/internal/search"
@@ -45,7 +44,7 @@ type DoSearchFunc func(*gitprotocol.SearchRequest) error
 type CodeMonitorHook func(context.Context, database.DB, GitserverClient, *gitprotocol.SearchRequest, api.RepoID, DoSearchFunc) error
 
 type GitserverClient interface {
-	Search(_ context.Context, _ *protocol.SearchRequest, onMatches func([]protocol.CommitMatch)) (limitHit bool, _ error)
+	Search(_ context.Context, _ *gitprotocol.SearchRequest, onMatches func([]gitprotocol.CommitMatch)) (limitHit bool, _ error)
 	ResolveRevisions(context.Context, api.RepoName, []gitprotocol.RevisionSpecifier) ([]string, error)
 }
 
@@ -93,7 +92,7 @@ func (j *CommitSearchJob) Run(ctx context.Context, clients job.RuntimeClients, s
 			continue
 		}
 
-		args := &protocol.SearchRequest{
+		args := &gitprotocol.SearchRequest{
 			Repo:                 repoRev.Repo.Name,
 			Revisions:            searchRevsToGitserverRevs(repoRev.Revs),
 			Query:                j.Query,
@@ -102,7 +101,7 @@ func (j *CommitSearchJob) Run(ctx context.Context, clients job.RuntimeClients, s
 			IncludeModifiedFiles: j.IncludeModifiedFiles,
 		}
 
-		onMatches := func(in []protocol.CommitMatch) {
+		onMatches := func(in []gitprotocol.CommitMatch) {
 			res := make([]result.Match, 0, len(in))
 			for _, protocolMatch := range in {
 				res = append(res, protocolMatchToCommitMatch(repoRev.Repo, j.Diff, protocolMatch))
@@ -152,16 +151,16 @@ func (j *CommitSearchJob) Tags() []log.Field {
 }
 
 func (j *CommitSearchJob) ExpandUsernames(ctx context.Context, db database.DB) (err error) {
-	protocol.ReduceWith(j.Query, func(n protocol.Node) protocol.Node {
+	gitprotocol.ReduceWith(j.Query, func(n gitprotocol.Node) gitprotocol.Node {
 		if err != nil {
 			return n
 		}
 
 		var expr *string
 		switch v := n.(type) {
-		case *protocol.AuthorMatches:
+		case *gitprotocol.AuthorMatches:
 			expr = &v.Expr
-		case *protocol.CommitterMatches:
+		case *gitprotocol.CommitterMatches:
 			expr = &v.Expr
 		default:
 			return n
@@ -348,7 +347,7 @@ func queryParameterToPredicate(parameter query.Parameter, caseSensitive, diff bo
 	return newPred
 }
 
-func protocolMatchToCommitMatch(repo types.MinimalRepo, diff bool, in protocol.CommitMatch) *result.CommitMatch {
+func protocolMatchToCommitMatch(repo types.MinimalRepo, diff bool, in gitprotocol.CommitMatch) *result.CommitMatch {
 	var diffPreview, messagePreview *result.MatchedString
 	if diff {
 		diffPreview = &in.Diff

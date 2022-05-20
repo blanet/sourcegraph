@@ -11,7 +11,6 @@ import (
 	mockrequire "github.com/derision-test/go-mockgen/testutil/require"
 
 	"github.com/sourcegraph/sourcegraph/cmd/frontend/backend"
-	"github.com/sourcegraph/sourcegraph/cmd/frontend/graphqlbackend"
 	gql "github.com/sourcegraph/sourcegraph/cmd/frontend/graphqlbackend"
 	"github.com/sourcegraph/sourcegraph/enterprise/cmd/frontend/internal/codeintel/resolvers"
 	"github.com/sourcegraph/sourcegraph/internal/api"
@@ -25,10 +24,12 @@ import (
 	"github.com/sourcegraph/sourcegraph/lib/errors"
 )
 
-const numRoutines = 5
-const numRepositories = 10
-const numCommits = 10 // per repo
-const numPaths = 10   // per commit
+const (
+	numRoutines     = 5
+	numRepositories = 10
+	numCommits      = 10 // per repo
+	numPaths        = 10 // per commit
+)
 
 func TestCachedLocationResolver(t *testing.T) {
 	repos := database.NewStrictMockRepoStore()
@@ -109,7 +110,7 @@ func TestCachedLocationResolver(t *testing.T) {
 						errs <- err
 						return
 					}
-					if commitResolver.OID() != graphqlbackend.GitObjectID(commit) {
+					if commitResolver.OID() != gql.GitObjectID(commit) {
 						errs <- errors.Errorf("unexpected commit. want=%s have=%s", commit, commitResolver.OID())
 						return
 					}

@@ -10,7 +10,6 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/api"
 	"github.com/sourcegraph/sourcegraph/internal/authz"
 	policies "github.com/sourcegraph/sourcegraph/internal/codeintel/policies/enterprise"
-	"github.com/sourcegraph/sourcegraph/internal/codeintel/stores/dbstore"
 	store "github.com/sourcegraph/sourcegraph/internal/codeintel/stores/dbstore"
 	"github.com/sourcegraph/sourcegraph/internal/conf"
 	"github.com/sourcegraph/sourcegraph/internal/database"
@@ -67,8 +66,8 @@ type Resolver interface {
 }
 
 type RepositorySummary struct {
-	RecentUploads           []dbstore.UploadsWithRepositoryNamespace
-	RecentIndexes           []dbstore.IndexesWithRepositoryNamespace
+	RecentUploads           []store.UploadsWithRepositoryNamespace
+	RecentIndexes           []store.IndexesWithRepositoryNamespace
 	LastUploadRetentionScan *time.Time
 	LastIndexScan           *time.Time
 }

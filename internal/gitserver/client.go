@@ -23,7 +23,6 @@ import (
 	"github.com/neelance/parallel"
 	"github.com/opentracing-contrib/go-stdlib/nethttp"
 	"github.com/opentracing/opentracing-go/ext"
-	"github.com/opentracing/opentracing-go/log"
 	otlog "github.com/opentracing/opentracing-go/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -371,10 +370,10 @@ type ArchiveOptions struct {
 
 type BatchLogOptions protocol.BatchLogRequest
 
-func (opts BatchLogOptions) LogFields() []log.Field {
-	return []log.Field{
-		log.Int("numRepoCommits", len(opts.RepoCommits)),
-		log.String("Format", opts.Format),
+func (opts BatchLogOptions) LogFields() []otlog.Field {
+	return []otlog.Field{
+		otlog.Int("numRepoCommits", len(opts.RepoCommits)),
+		otlog.String("Format", opts.Format),
 	}
 }
 
@@ -680,16 +679,16 @@ func (c *ClientImplementor) BatchLog(ctx context.Context, opts BatchLogOptions, 
 		repoNames := repoNamesFromRepoCommits(repoCommits)
 
 		ctx, logger, endObservation := c.operations.batchLogSingle.With(ctx, &err, observation.Args{
-			LogFields: []log.Field{
-				log.String("addr", addr),
-				log.Int("numRepos", len(repoNames)),
-				log.Int("numRepoCommits", len(repoCommits)),
+			LogFields: []otlog.Field{
+				otlog.String("addr", addr),
+				otlog.Int("numRepos", len(repoNames)),
+				otlog.Int("numRepoCommits", len(repoCommits)),
 			},
 		})
 		defer func() {
 			endObservation(1, observation.Args{
-				LogFields: []log.Field{
-					log.Int("numProcessed", numProcessed),
+				LogFields: []otlog.Field{
+					otlog.Int("numProcessed", numProcessed),
 				},
 			})
 		}()
@@ -712,7 +711,7 @@ func (c *ClientImplementor) BatchLog(ctx context.Context, opts BatchLogOptions, 
 			return err
 		}
 		defer resp.Body.Close()
-		logger.Log(log.Int("resp.StatusCode", resp.StatusCode))
+		logger.Log(otlog.Int("resp.StatusCode", resp.StatusCode))
 
 		// TODO(efritz) - remove after 3.39 branch cut
 		if resp.StatusCode == http.StatusNotFound {
@@ -756,7 +755,7 @@ func (c *ClientImplementor) BatchLog(ctx context.Context, opts BatchLogOptions, 
 		if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 			return err
 		}
-		logger.Log(log.Int("numResults", len(response.Results)))
+		logger.Log(otlog.Int("numResults", len(response.Results)))
 
 		for _, result := range response.Results {
 			var err error

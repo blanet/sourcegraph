@@ -10,7 +10,6 @@ import (
 	btypes "github.com/sourcegraph/sourcegraph/enterprise/internal/batches/types"
 	"github.com/sourcegraph/sourcegraph/internal/api"
 	"github.com/sourcegraph/sourcegraph/lib/batches"
-	batcheslib "github.com/sourcegraph/sourcegraph/lib/batches"
 )
 
 type TestSpecOpts struct {
@@ -57,7 +56,7 @@ func BuildChangesetSpec(t *testing.T, opts TestSpecOpts) *btypes.ChangesetSpec {
 		UserID:      opts.User,
 		RepoID:      opts.Repo,
 		BatchSpecID: opts.BatchSpec,
-		Spec: &batcheslib.ChangesetSpec{
+		Spec: &batches.ChangesetSpec{
 			BaseRepository: string(graphqlbackend.MarshalRepositoryID(opts.Repo)),
 
 			BaseRev: opts.BaseRev,
@@ -70,7 +69,7 @@ func BuildChangesetSpec(t *testing.T, opts TestSpecOpts) *btypes.ChangesetSpec {
 			Title: opts.Title,
 			Body:  opts.Body,
 
-			Commits: []batcheslib.GitCommitDescription{
+			Commits: []batches.GitCommitDescription{
 				{
 					Message:     opts.CommitMessage,
 					Diff:        opts.CommitDiff,

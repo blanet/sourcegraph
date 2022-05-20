@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
-	"github.com/graph-gophers/graphql-go/errors"
 	gqlerrors "github.com/graph-gophers/graphql-go/errors"
 	"github.com/graph-gophers/graphql-go/relay"
 	"github.com/stretchr/testify/assert"
@@ -84,7 +83,7 @@ func TestOrganization(t *testing.T) {
 					"organization": null
 				}
 				`,
-				ExpectedErrors: []*errors.QueryError{
+				ExpectedErrors: []*gqlerrors.QueryError{
 					{
 						Message: "org not found: name acme",
 						Path:    []any{"organization"},
@@ -512,9 +511,9 @@ func TestOrganizationRepositories_OSS(t *testing.T) {
 					}
 				}
 			`,
-			ExpectedErrors: []*errors.QueryError{{
+			ExpectedErrors: []*gqlerrors.QueryError{{
 				Message:   `Cannot query field "repositories" on type "Org".`,
-				Locations: []errors.Location{{Line: 5, Column: 7}},
+				Locations: []gqlerrors.Location{{Line: 5, Column: 7}},
 				Rule:      "FieldsOnCorrectType",
 			}},
 			Context: ctx,

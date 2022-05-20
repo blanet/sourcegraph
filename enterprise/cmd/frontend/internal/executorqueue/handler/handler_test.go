@@ -9,7 +9,6 @@ import (
 	apiclient "github.com/sourcegraph/sourcegraph/enterprise/internal/executor"
 	"github.com/sourcegraph/sourcegraph/internal/types"
 	"github.com/sourcegraph/sourcegraph/internal/workerutil"
-	"github.com/sourcegraph/sourcegraph/internal/workerutil/dbworker/store"
 	workerstore "github.com/sourcegraph/sourcegraph/internal/workerutil/dbworker/store"
 	workerstoremocks "github.com/sourcegraph/sourcegraph/internal/workerutil/dbworker/store/mocks"
 	"github.com/sourcegraph/sourcegraph/lib/errors"
@@ -367,7 +366,7 @@ func TestHeartbeat(t *testing.T) {
 		return apiclient.Job{ID: record.RecordID()}, nil
 	}
 	testKnownID := 10
-	s.HeartbeatFunc.SetDefaultHook(func(ctx context.Context, ids []int, options store.HeartbeatOptions) ([]int, error) {
+	s.HeartbeatFunc.SetDefaultHook(func(ctx context.Context, ids []int, options workerstore.HeartbeatOptions) ([]int, error) {
 		return []int{testKnownID}, nil
 	})
 

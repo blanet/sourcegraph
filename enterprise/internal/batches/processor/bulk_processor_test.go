@@ -8,7 +8,6 @@ import (
 	"github.com/sourcegraph/sourcegraph/enterprise/internal/batches/sources"
 	"github.com/sourcegraph/sourcegraph/enterprise/internal/batches/store"
 	ct "github.com/sourcegraph/sourcegraph/enterprise/internal/batches/testing"
-	"github.com/sourcegraph/sourcegraph/enterprise/internal/batches/types"
 	btypes "github.com/sourcegraph/sourcegraph/enterprise/internal/batches/types"
 	"github.com/sourcegraph/sourcegraph/internal/database"
 	"github.com/sourcegraph/sourcegraph/internal/database/dbtest"
@@ -39,7 +38,7 @@ func TestBulkProcessor(t *testing.T) {
 	})
 	changeset := ct.CreateChangeset(t, ctx, bstore, ct.TestChangesetOpts{
 		Repo:                repo.ID,
-		BatchChanges:        []types.BatchChangeAssoc{{BatchChangeID: batchChange.ID}},
+		BatchChanges:        []btypes.BatchChangeAssoc{{BatchChangeID: batchChange.ID}},
 		Metadata:            &github.PullRequest{},
 		ExternalServiceType: extsvc.TypeGitHub,
 		CurrentSpec:         changesetSpec.ID,
@@ -51,7 +50,7 @@ func TestBulkProcessor(t *testing.T) {
 			tx:      bstore,
 			sourcer: sources.NewFakeSourcer(nil, fake),
 		}
-		job := &types.ChangesetJob{JobType: types.ChangesetJobType("UNKNOWN")}
+		job := &btypes.ChangesetJob{JobType: btypes.ChangesetJobType("UNKNOWN")}
 		err := bp.Process(ctx, job)
 		if err == nil || err.Error() != `invalid job type "UNKNOWN"` {
 			t.Fatalf("unexpected error returned %s", err)
@@ -61,16 +60,16 @@ func TestBulkProcessor(t *testing.T) {
 	t.Run("changeset is processing", func(t *testing.T) {
 		processingChangeset := ct.CreateChangeset(t, ctx, bstore, ct.TestChangesetOpts{
 			Repo:                repo.ID,
-			BatchChanges:        []types.BatchChangeAssoc{{BatchChangeID: batchChange.ID}},
+			BatchChanges:        []btypes.BatchChangeAssoc{{BatchChangeID: batchChange.ID}},
 			Metadata:            &github.PullRequest{},
 			ExternalServiceType: extsvc.TypeGitHub,
 			CurrentSpec:         changesetSpec.ID,
 			ReconcilerState:     btypes.ReconcilerStateProcessing,
 		})
 
-		job := &types.ChangesetJob{
+		job := &btypes.ChangesetJob{
 			// JobType doesn't matter but we need one for database validation
-			JobType:     types.ChangesetJobTypeComment,
+			JobType:     btypes.ChangesetJobTypeComment,
 			ChangesetID: processingChangeset.ID,
 			UserID:      user.ID,
 		}
@@ -91,8 +90,8 @@ func TestBulkProcessor(t *testing.T) {
 			tx:      bstore,
 			sourcer: sources.NewFakeSourcer(nil, fake),
 		}
-		job := &types.ChangesetJob{
-			JobType:     types.ChangesetJobTypeComment,
+		job := &btypes.ChangesetJob{
+			JobType:     btypes.ChangesetJobTypeComment,
 			ChangesetID: changeset.ID,
 			UserID:      user.ID,
 			Payload:     &btypes.ChangesetJobCommentPayload{},
@@ -115,8 +114,8 @@ func TestBulkProcessor(t *testing.T) {
 			tx:      bstore,
 			sourcer: sources.NewFakeSourcer(nil, fake),
 		}
-		job := &types.ChangesetJob{
-			JobType:       types.ChangesetJobTypeDetach,
+		job := &btypes.ChangesetJob{
+			JobType:       btypes.ChangesetJobTypeDetach,
 			ChangesetID:   changeset.ID,
 			UserID:        user.ID,
 			BatchChangeID: batchChange.ID,
@@ -148,8 +147,8 @@ func TestBulkProcessor(t *testing.T) {
 			tx:      bstore,
 			sourcer: sources.NewFakeSourcer(nil, fake),
 		}
-		job := &types.ChangesetJob{
-			JobType:     types.ChangesetJobTypeReenqueue,
+		job := &btypes.ChangesetJob{
+			JobType:     btypes.ChangesetJobTypeReenqueue,
 			ChangesetID: changeset.ID,
 			UserID:      user.ID,
 			Payload:     &btypes.ChangesetJobReenqueuePayload{},
@@ -177,8 +176,8 @@ func TestBulkProcessor(t *testing.T) {
 			tx:      bstore,
 			sourcer: sources.NewFakeSourcer(nil, fake),
 		}
-		job := &types.ChangesetJob{
-			JobType:     types.ChangesetJobTypeMerge,
+		job := &btypes.ChangesetJob{
+			JobType:     btypes.ChangesetJobTypeMerge,
 			ChangesetID: changeset.ID,
 			UserID:      user.ID,
 			Payload:     &btypes.ChangesetJobMergePayload{},
@@ -198,8 +197,8 @@ func TestBulkProcessor(t *testing.T) {
 			tx:      bstore,
 			sourcer: sources.NewFakeSourcer(nil, fake),
 		}
-		job := &types.ChangesetJob{
-			JobType:     types.ChangesetJobTypeClose,
+		job := &btypes.ChangesetJob{
+			JobType:     btypes.ChangesetJobTypeClose,
 			ChangesetID: changeset.ID,
 			UserID:      user.ID,
 			Payload:     &btypes.ChangesetJobClosePayload{},
@@ -273,12 +272,12 @@ func TestBulkProcessor(t *testing.T) {
 					}
 					changeset := ct.CreateChangeset(t, ctx, bstore, tc.changeset)
 
-					job := &types.ChangesetJob{
-						JobType:       types.ChangesetJobTypePublish,
+					job := &btypes.ChangesetJob{
+						JobType:       btypes.ChangesetJobTypePublish,
 						BatchChangeID: batchChange.ID,
 						ChangesetID:   changeset.ID,
 						UserID:        user.ID,
-						Payload: &types.ChangesetJobPublishPayload{
+						Payload: &btypes.ChangesetJobPublishPayload{
 							Draft: false,
 						},
 					}
@@ -321,12 +320,12 @@ func TestBulkProcessor(t *testing.T) {
 								ReconcilerState: reconcilerState,
 							})
 
-							job := &types.ChangesetJob{
-								JobType:       types.ChangesetJobTypePublish,
+							job := &btypes.ChangesetJob{
+								JobType:       btypes.ChangesetJobTypePublish,
 								BatchChangeID: batchChange.ID,
 								ChangesetID:   changeset.ID,
 								UserID:        user.ID,
-								Payload: &types.ChangesetJobPublishPayload{
+								Payload: &btypes.ChangesetJobPublishPayload{
 									Draft: draft,
 								},
 							}

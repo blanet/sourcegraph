@@ -14,7 +14,7 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/conf"
 	"github.com/sourcegraph/sourcegraph/internal/endpoint"
 	"github.com/sourcegraph/sourcegraph/internal/env"
-	"github.com/sourcegraph/sourcegraph/internal/search/backend"
+	searchbackend "github.com/sourcegraph/sourcegraph/internal/search/backend"
 	"github.com/sourcegraph/sourcegraph/lib/errors"
 )
 
@@ -31,7 +31,7 @@ var (
 	indexedSearch     zoekt.Streamer
 
 	indexersOnce sync.Once
-	indexers     *backend.Indexers
+	indexers     *searchbackend.Indexers
 
 	indexedListTTL = func() time.Duration {
 		ttl, _ := time.ParseDuration(env.Get("SRC_INDEXED_SEARCH_LIST_CACHE_TTL", "", "Indexed search list cache TTL"))
@@ -45,8 +45,8 @@ var (
 		return ttl
 	}()
 
-	indexedDialer = backend.NewCachedZoektDialer(func(endpoint string) zoekt.Streamer {
-		return backend.NewCachedSearcher(indexedListTTL, backend.ZoektDial(endpoint))
+	indexedDialer = searchbackend.NewCachedZoektDialer(func(endpoint string) zoekt.Streamer {
+		return searchbackend.NewCachedSearcher(indexedListTTL, searchbackend.ZoektDial(endpoint))
 	})
 )
 
@@ -74,14 +74,14 @@ var ErrIndexDisabled = errors.New("indexed search has been disabled")
 
 func Indexed() zoekt.Streamer {
 	if !conf.SearchIndexEnabled() {
-		return &backend.FakeSearcher{SearchError: ErrIndexDisabled, ListError: ErrIndexDisabled}
+		return &searchbackend.FakeSearcher{SearchError: ErrIndexDisabled, ListError: ErrIndexDisabled}
 	}
 
 	indexedSearchOnce.Do(func() {
 		if eps := IndexedEndpoints(); eps != nil {
-			indexedSearch = backend.NewCachedSearcher(indexedListTTL, backend.NewMeteredSearcher(
+			indexedSearch = searchbackend.NewCachedSearcher(indexedListTTL, searchbackend.NewMeteredSearcher(
 				"", // no hostname means its the aggregator
-				&backend.HorizontalSearcher{
+				&searchbackend.HorizontalSearcher{
 					Map:  eps,
 					Dial: indexedDialer,
 				}))
@@ -91,9 +91,9 @@ func Indexed() zoekt.Streamer {
 	return indexedSearch
 }
 
-func Indexers() *backend.Indexers {
+func Indexers() *searchbackend.Indexers {
 	indexersOnce.Do(func() {
-		indexers = &backend.Indexers{
+		indexers = &searchbackend.Indexers{
 			Map:     IndexedEndpoints(),
 			Indexed: reposAtEndpoint(indexedDialer),
 		}

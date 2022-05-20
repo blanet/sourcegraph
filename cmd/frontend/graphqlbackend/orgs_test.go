@@ -3,7 +3,7 @@ package graphqlbackend
 import (
 	"testing"
 
-	"github.com/graph-gophers/graphql-go/errors"
+	gqlerrors "github.com/graph-gophers/graphql-go/errors"
 
 	"github.com/sourcegraph/sourcegraph/cmd/frontend/envvar"
 	"github.com/sourcegraph/sourcegraph/internal/database"
@@ -79,7 +79,7 @@ func TestListOrgsForCloud(t *testing.T) {
 				}
 			`,
 			ExpectedResult: "null",
-			ExpectedErrors: []*errors.QueryError{
+			ExpectedErrors: []*gqlerrors.QueryError{
 				{
 					Message: "listing organizations is not allowed",
 					Path:    []any{string("organizations"), string("nodes")},

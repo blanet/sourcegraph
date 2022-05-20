@@ -17,7 +17,6 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/conf"
 	"github.com/sourcegraph/sourcegraph/internal/database"
 	"github.com/sourcegraph/sourcegraph/internal/gitserver"
-	"github.com/sourcegraph/sourcegraph/internal/search/backend"
 	searchbackend "github.com/sourcegraph/sourcegraph/internal/search/backend"
 	"github.com/sourcegraph/sourcegraph/internal/search/query"
 	searchrepos "github.com/sourcegraph/sourcegraph/internal/search/repos"
@@ -417,7 +416,7 @@ func zoektRPC(t testing.TB, s zoekt.Streamer) zoekt.Streamer {
 		t.Fatal(err)
 	}
 	ts := httptest.NewServer(srv)
-	cl := backend.ZoektDial(strings.TrimPrefix(ts.URL, "http://"))
+	cl := searchbackend.ZoektDial(strings.TrimPrefix(ts.URL, "http://"))
 	t.Cleanup(func() {
 		cl.Close()
 		ts.Close()
