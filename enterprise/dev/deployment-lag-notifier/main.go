@@ -78,7 +78,6 @@ func getLiveVersion(client *http.Client, url string) (string, error) {
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return version, err
-
 	}
 
 	// Response is in format build_date_hash
@@ -161,7 +160,7 @@ func main() {
 	if !inAllowedNumCommits || timeExceeded || flags.DryRun {
 
 		td := TemplateData{
-			VersionAge:       time.Now().Sub(currentCommit.Date).Truncate(time.Second).String(),
+			VersionAge:       time.Since(currentCommit.Date).Truncate(time.Second).String(),
 			Version:          version,
 			Environment:      flags.Environment,
 			CommitTooOld:     timeExceeded,
@@ -189,5 +188,4 @@ func main() {
 	log.Printf("Now: %s\n", time.Now().String())
 	log.Printf("%s: %s\n", flags.Environment, currentCommit.Date.String())
 	log.Printf("main: %s\n", commitLog[0].Date.String())
-
 }
