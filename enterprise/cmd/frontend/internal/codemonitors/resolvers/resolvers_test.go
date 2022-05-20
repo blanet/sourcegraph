@@ -62,7 +62,6 @@ func TestCreateCodeMonitor(t *testing.T) {
 		require.NoError(t, err)
 		_, err = r.db.CodeMonitors().GetMonitor(ctx, got.(*monitor).Monitor.ID)
 		require.Error(t, err, "monitor should have been deleted")
-
 	})
 
 	t.Run("invalid slack webhook", func(t *testing.T) {

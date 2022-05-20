@@ -2,7 +2,6 @@ package squirrel
 
 import (
 	"context"
-	"fmt"
 	"sort"
 	"strings"
 	"testing"
@@ -511,21 +510,6 @@ func sortAnnotations(annotations []annotation) {
 	})
 }
 
-func printRowColumnKind(annotations []annotation) string {
-	sortAnnotations(annotations)
-
-	lines := []string{}
-	for _, annotation := range annotations {
-		lines = append(lines, fmt.Sprintf(
-			"%d:%d %s",
-			annotation.repoCommitPathPoint.Row,
-			annotation.repoCommitPathPoint.Column,
-			annotation.kind,
-		))
-	}
-
-	return strings.Join(lines, "\n")
-}
 
 var compareAnnotations = cmp.Comparer(func(a, b annotation) bool {
 	if a.repoCommitPathPoint.RepoCommitPath != b.repoCommitPathPoint.RepoCommitPath {

@@ -18,18 +18,6 @@ type Breadcrumb struct {
 	message string
 }
 
-// addBreadcrumb adds a breadcrumb to the given slice.
-func addBreadcrumb(breadcrumbs *[]Breadcrumb, node Node, message string) {
-	*breadcrumbs = append(*breadcrumbs, Breadcrumb{
-		RepoCommitPathRange: types.RepoCommitPathRange{
-			RepoCommitPath: node.RepoCommitPath,
-			Range:          nodeToRange(node.Node),
-		},
-		length:  nodeLength(node.Node),
-		message: message,
-	})
-}
-
 // Prints breadcrumbs like this:
 //
 //             v some breadcrumb
@@ -102,20 +90,6 @@ func prettyPrintBreadcrumbs(w *strings.Builder, breadcrumbs []Breadcrumb, readFi
 			fmt.Fprintln(w)
 		}
 	}
-}
-
-// Returns breadcrumbs that have one of the given messages.
-func pickBreadcrumbs(breadcrumbs []Breadcrumb, messages []string) []Breadcrumb {
-	var picked []Breadcrumb
-	for _, breadcrumb := range breadcrumbs {
-		for _, message := range messages {
-			if strings.Contains(breadcrumb.message, message) {
-				picked = append(picked, breadcrumb)
-				break
-			}
-		}
-	}
-	return picked
 }
 
 // Returns the color to be used to print a message.

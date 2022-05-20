@@ -36,15 +36,6 @@ func nodeId(node *sitter.Node) NodeId {
 	return NodeId(fmt.Sprint(nodeToRange(node)))
 }
 
-// getRoot returns the root node of the tree-sitter tree, given any node inside it.
-func getRoot(node *sitter.Node) *sitter.Node {
-	var top *sitter.Node
-	for cur := node; cur != nil; cur = cur.Parent() {
-		top = cur
-	}
-	return top
-}
-
 // isLessRange compares ranges.
 func isLessRange(a, b types.Range) bool {
 	if a.Row == b.Row {
@@ -155,15 +146,6 @@ func nodeToRange(node *sitter.Node) types.Range {
 	}
 }
 
-// nodeLength returns the length of the node.
-func nodeLength(node *sitter.Node) int {
-	length := 1
-	if node.StartPoint().Row == node.EndPoint().Row {
-		length = int(node.EndPoint().Column - node.StartPoint().Column)
-	}
-	return length
-}
-
 // Of course.
 func min(a, b int) int {
 	if a < b {
@@ -208,8 +190,10 @@ func WithNodePtr(other Node, newNode *sitter.Node) *Node {
 	}
 }
 
-var unrecognizedFileExtensionError = errors.New("unrecognized file extension")
-var unsupportedLanguageError = errors.New("unsupported language")
+var (
+	unrecognizedFileExtensionError = errors.New("unrecognized file extension")
+	unsupportedLanguageError       = errors.New("unsupported language")
+)
 
 // Parses a file and returns info about it.
 func (s *SquirrelService) parse(ctx context.Context, repoCommitPath types.RepoCommitPath) (*Node, error) {
