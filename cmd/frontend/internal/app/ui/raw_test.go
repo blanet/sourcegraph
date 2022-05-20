@@ -166,7 +166,7 @@ func Test_serveRawWithContentArchive(t *testing.T) {
 			}
 		}
 
-		body := string(w.Body.Bytes())
+		body := w.Body.String()
 		if body != mockGitServerResponse {
 			t.Errorf("Want %q in body, but got %q", mockGitServerResponse, body)
 		}
@@ -205,12 +205,11 @@ func Test_serveRawWithContentArchive(t *testing.T) {
 			}
 		}
 
-		body := string(w.Body.Bytes())
+		body := w.Body.String()
 		if body != mockGitServerResponse {
 			t.Errorf("Want %q in body, but got %q", mockGitServerResponse, body)
 		}
 	})
-
 }
 
 func Test_serveRawWithContentTypePlain(t *testing.T) {
@@ -304,7 +303,7 @@ func Test_serveRawWithContentTypePlain(t *testing.T) {
 		want := `a/
 b/
 c.go`
-		body := string(w.Body.Bytes())
+		body := w.Body.String()
 		if body != want {
 			t.Errorf("Want %q in body, but got %q", want, body)
 		}
@@ -340,7 +339,7 @@ c.go`
 
 		want := "this is a test file"
 
-		body := string(w.Body.Bytes())
+		body := w.Body.String()
 		if body != want {
 			t.Errorf("Want %q in body, but got %q", want, body)
 		}
@@ -377,7 +376,7 @@ c.go`
 
 		want := "this is a test file"
 
-		body := string(w.Body.Bytes())
+		body := w.Body.String()
 		if body != want {
 			t.Errorf("Want %q in body, but got %q", want, body)
 		}
