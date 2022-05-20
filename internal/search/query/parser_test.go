@@ -43,7 +43,7 @@ func TestParseParameterList(t *testing.T) {
 		parser := &parser{buf: []byte(input), heuristics: parensAsPatterns | allowDanglingParens}
 		result, err := parser.parseLeaves(Regexp)
 		if err != nil {
-			t.Fatal(fmt.Sprintf("Unexpected error: %s", err))
+			t.Fatalf("Unexpected error: %s", err)
 		}
 		resultNode := result[0]
 		got, _ := json.Marshal(resultNode)
@@ -195,7 +195,7 @@ func TestScanPredicate(t *testing.T) {
 		parser := &parser{buf: []byte(input), heuristics: parensAsPatterns | allowDanglingParens}
 		result, err := parser.parseLeaves(Regexp)
 		if err != nil {
-			t.Fatal(fmt.Sprintf("Unexpected error: %s", err))
+			t.Fatalf("Unexpected error: %s", err)
 		}
 		resultNode := result[0]
 		got, _ := json.Marshal(resultNode)
@@ -538,7 +538,6 @@ func TestParse(t *testing.T) {
 
 	// The space-looking character below is U+00A0.
 	autogold.Want(`00 (000)`, value{Grammar: `(concat "00" "000")`, Heuristic: `(concat "00" "(000)")`}).Equal(t, test(`00 (000)`))
-
 }
 
 func TestScanDelimited(t *testing.T) {
