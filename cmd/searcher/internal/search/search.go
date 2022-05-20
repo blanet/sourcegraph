@@ -32,7 +32,6 @@ import (
 	streamhttp "github.com/sourcegraph/sourcegraph/internal/search/streaming/http"
 	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 	"github.com/sourcegraph/sourcegraph/lib/errors"
-	"github.com/sourcegraph/sourcegraph/lib/log"
 	sglog "github.com/sourcegraph/sourcegraph/lib/log"
 )
 
@@ -46,7 +45,7 @@ const (
 // Service is the search service. It is an http.Handler.
 type Service struct {
 	Store *Store
-	Log   log.Logger
+	Log   sglog.Logger
 }
 
 // ServeHTTP handles HTTP based search requests
@@ -93,7 +92,7 @@ func (s *Service) streamSearch(ctx context.Context, w http.ResponseWriter, p pro
 	})
 	onMatches := func(match protocol.FileMatch) {
 		if err := matchesBuf.Append(match); err != nil {
-			s.Log.Warn("failed appending match to buffer", log.Error(err))
+			s.Log.Warn("failed appending match to buffer", sglog.Error(err))
 		}
 	}
 
@@ -110,10 +109,10 @@ func (s *Service) streamSearch(ctx context.Context, w http.ResponseWriter, p pro
 
 	// Flush remaining matches before sending a different event
 	if err := matchesBuf.Flush(); err != nil {
-		s.Log.Warn("failed to flush matches", log.Error(err))
+		s.Log.Warn("failed to flush matches", sglog.Error(err))
 	}
 	if err := eventWriter.Event("done", doneEvent); err != nil {
-		s.Log.Warn("failed to send done event", log.Error(err))
+		s.Log.Warn("failed to send done event", sglog.Error(err))
 	}
 }
 

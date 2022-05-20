@@ -16,7 +16,7 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/api"
 	"github.com/sourcegraph/sourcegraph/internal/comby"
 	"github.com/sourcegraph/sourcegraph/internal/search"
-	"github.com/sourcegraph/sourcegraph/internal/search/backend"
+	searchbackend "github.com/sourcegraph/sourcegraph/internal/search/backend"
 	zoektutil "github.com/sourcegraph/sourcegraph/internal/search/zoekt"
 	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 	"github.com/sourcegraph/sourcegraph/lib/errors"
@@ -30,11 +30,11 @@ var (
 
 func getZoektClient(indexerEndpoints []string) zoekt.Streamer {
 	zoektOnce.Do(func() {
-		zoektClient = backend.NewMeteredSearcher(
+		zoektClient = searchbackend.NewMeteredSearcher(
 			"", // no hostname means its the aggregator
-			&backend.HorizontalSearcher{
+			&searchbackend.HorizontalSearcher{
 				Map:  &endpointMap,
-				Dial: backend.ZoektDial,
+				Dial: searchbackend.ZoektDial,
 			},
 		)
 	})

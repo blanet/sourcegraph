@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/graph-gophers/graphql-go/errors"
+	gqlerrors "github.com/graph-gophers/graphql-go/errors"
 
 	"github.com/sourcegraph/sourcegraph/cmd/frontend/envvar"
 	"github.com/sourcegraph/sourcegraph/internal/conf"
@@ -31,7 +31,7 @@ func TestRandomizeUserPassword(t *testing.T) {
 					}
 				`,
 				ExpectedResult: "null",
-				ExpectedErrors: []*errors.QueryError{
+				ExpectedErrors: []*gqlerrors.QueryError{
 					{
 						Message: "resetting passwords is not enabled",
 						Path:    []any{"randomizeUserPassword"},
@@ -61,7 +61,7 @@ func TestRandomizeUserPassword(t *testing.T) {
 					}
 				`,
 				ExpectedResult: "null",
-				ExpectedErrors: []*errors.QueryError{
+				ExpectedErrors: []*gqlerrors.QueryError{
 					{
 						Message: "unable to reset password because email sending is not configured",
 						Path:    []any{"randomizeUserPassword"},
@@ -92,7 +92,7 @@ func TestRandomizeUserPassword(t *testing.T) {
 					}
 				`,
 				ExpectedResult: "null",
-				ExpectedErrors: []*errors.QueryError{
+				ExpectedErrors: []*gqlerrors.QueryError{
 					{
 						Message: "must be site admin",
 						Path:    []any{string("randomizeUserPassword")},
@@ -119,7 +119,7 @@ func TestRandomizeUserPassword(t *testing.T) {
 					}
 				`,
 				ExpectedResult: "null",
-				ExpectedErrors: []*errors.QueryError{
+				ExpectedErrors: []*gqlerrors.QueryError{
 					{
 						Message: "cannot parse user ID: illegal base64 data at input byte 4",
 						Path:    []any{string("randomizeUserPassword")},

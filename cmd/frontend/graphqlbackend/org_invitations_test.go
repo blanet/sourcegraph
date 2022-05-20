@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/graph-gophers/graphql-go/errors"
+	gqlerrors "github.com/graph-gophers/graphql-go/errors"
 
 	"github.com/sourcegraph/sourcegraph/internal/actor"
 	"github.com/sourcegraph/sourcegraph/internal/conf"
@@ -79,7 +79,6 @@ func TestCreateJWT(t *testing.T) {
 
 			return base64.StdEncoding.DecodeString(signingKey)
 		})
-
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -136,7 +135,6 @@ func TestOrgInvitationURL(t *testing.T) {
 
 			return base64.StdEncoding.DecodeString(signingKey)
 		})
-
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -246,7 +244,7 @@ func TestInviteUserToOrganization(t *testing.T) {
 					"username":     "foo",
 				},
 				ExpectedResult: "null",
-				ExpectedErrors: []*errors.QueryError{
+				ExpectedErrors: []*gqlerrors.QueryError{
 					{
 						Message: "cannot invite user because their primary email address is not verified",
 						Path:    []any{"inviteUserToOrganization"},
@@ -305,7 +303,7 @@ func TestInviteUserToOrganization(t *testing.T) {
 					"email":        "foo@bar.baz",
 				},
 				ExpectedResult: "null",
-				ExpectedErrors: []*errors.QueryError{
+				ExpectedErrors: []*gqlerrors.QueryError{
 					{
 						Message: "inviting by email is not supported for this organization",
 						Path:    []any{"inviteUserToOrganization"},
@@ -495,7 +493,7 @@ func TestInvitationByToken(t *testing.T) {
 					"token": token,
 				},
 				ExpectedResult: `null`,
-				ExpectedErrors: []*errors.QueryError{
+				ExpectedErrors: []*gqlerrors.QueryError{
 					{
 						Message: "signing key not provided, cannot validate JWT on invitation URL. Please add organizationInvitations signingKey to site configuration.",
 						Path:    []any{"invitationByToken"},
@@ -726,7 +724,7 @@ func TestRespondToOrganizationInvitation(t *testing.T) {
 					"response": "ACCEPT",
 				},
 				ExpectedResult: "null",
-				ExpectedErrors: []*errors.QueryError{
+				ExpectedErrors: []*gqlerrors.QueryError{
 					{
 						Message: "your email addresses [something@else.invalid] do not match the email address on the invitation.",
 						Path:    []any{"respondToOrganizationInvitation"},
@@ -890,7 +888,7 @@ func TestResendOrganizationInvitationNotification(t *testing.T) {
 					"id": string(MarshalOrgInvitationID(invitationID)),
 				},
 				ExpectedResult: "null",
-				ExpectedErrors: []*errors.QueryError{
+				ExpectedErrors: []*gqlerrors.QueryError{
 					{
 						Message: wantErr.Error(),
 						Path:    []any{"resendOrganizationInvitationNotification"},
@@ -922,7 +920,7 @@ func TestResendOrganizationInvitationNotification(t *testing.T) {
 					"id": string(MarshalOrgInvitationID(invitationID)),
 				},
 				ExpectedResult: "null",
-				ExpectedErrors: []*errors.QueryError{
+				ExpectedErrors: []*gqlerrors.QueryError{
 					{
 						Message: "refusing to send notification because recipient has no verified email address",
 						Path:    []any{"resendOrganizationInvitationNotification"},

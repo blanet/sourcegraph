@@ -8,14 +8,13 @@ import (
 	"github.com/google/go-cmp/cmp"
 
 	"github.com/sourcegraph/sourcegraph/internal/database/migration/schemas"
-	descriptions "github.com/sourcegraph/sourcegraph/internal/database/migration/schemas"
 	"github.com/sourcegraph/sourcegraph/lib/errors"
 	"github.com/sourcegraph/sourcegraph/lib/output"
 )
 
 // fetchSchema returns the schema description of the given schema at the given version. If the version
 // is not resolvable as a git rev-like, then an error is returned.
-func fetchSchema(schemaName, version string) (schemaDescription descriptions.SchemaDescription, _ error) {
+func fetchSchema(schemaName, version string) (schemaDescription schemas.SchemaDescription, _ error) {
 	url, err := getSchemaURL(schemaName, version)
 	if err != nil {
 		return schemaDescription, err

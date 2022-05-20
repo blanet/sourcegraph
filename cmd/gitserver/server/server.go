@@ -29,7 +29,6 @@ import (
 
 	"github.com/inconshreveable/log15"
 	"github.com/opentracing/opentracing-go/ext"
-	"github.com/opentracing/opentracing-go/log"
 	otlog "github.com/opentracing/opentracing-go/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -1187,15 +1186,15 @@ func (s *Server) handleBatchLog(w http.ResponseWriter, r *http.Request) {
 	performGitLogCommand := func(ctx context.Context, repoCommit api.RepoCommit, format string) (output string, isRepoCloned bool, err error) {
 		ctx, _, endObservation := operations.batchLogSingle.With(ctx, &err, observation.Args{
 			LogFields: append(
-				[]log.Field{
-					log.String("format", format),
+				[]otlog.Field{
+					otlog.String("format", format),
 				},
 				repoCommit.LogFields()...,
 			),
 		})
 		defer func() {
-			endObservation(1, observation.Args{LogFields: []log.Field{
-				log.Bool("isRepoCloned", isRepoCloned),
+			endObservation(1, observation.Args{LogFields: []otlog.Field{
+				otlog.Bool("isRepoCloned", isRepoCloned),
 			}})
 		}()
 
@@ -1220,8 +1219,8 @@ func (s *Server) handleBatchLog(w http.ResponseWriter, r *http.Request) {
 	instrumentedHandler := func(ctx context.Context) (statusCodeOnError int, err error) {
 		ctx, logger, endObservation := operations.batchLog.With(ctx, &err, observation.Args{})
 		defer func() {
-			endObservation(1, observation.Args{LogFields: []log.Field{
-				log.Int("statusCodeOnError", statusCodeOnError),
+			endObservation(1, observation.Args{LogFields: []otlog.Field{
+				otlog.Int("statusCodeOnError", statusCodeOnError),
 			}})
 		}()
 
@@ -2439,7 +2438,7 @@ func removeBadRefs(ctx context.Context, dir GitDir) {
 func ensureHEAD(dir GitDir) {
 	head, err := os.Stat(dir.Path("HEAD"))
 	if os.IsNotExist(err) || head.Size() == 0 {
-		os.WriteFile(dir.Path("HEAD"), []byte("ref: refs/heads/master"), 0600)
+		os.WriteFile(dir.Path("HEAD"), []byte("ref: refs/heads/master"), 0o600)
 	}
 }
 
