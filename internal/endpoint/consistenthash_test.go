@@ -8,12 +8,11 @@ import (
 	"testing"
 	"text/tabwriter"
 
+	"github.com/cespare/xxhash/v2"
 	"github.com/montanaflynn/stats"
 	"github.com/segmentio/fasthash/fnv1"
 	"github.com/segmentio/fasthash/fnv1a"
 	"github.com/sourcegraph/go-rendezvous"
-
-	"github.com/cespare/xxhash"
 )
 
 func TestConsistentHashing(t *testing.T) {
